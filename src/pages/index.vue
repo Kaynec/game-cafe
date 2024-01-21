@@ -12,7 +12,7 @@
             @submit.prevent="onSubmit"
           >
             <div class="row items-center q-col-gutter-sm">
-              <div class="col-5">
+              <div class="col-12 col-md-5">
                 <q-input
                   :rules="[(val:string) => !!val?.length || 'لطفا نام بازی را وارد کنید']"
                   dense
@@ -21,7 +21,7 @@
                   v-model="newGameName.name"
                 />
               </div>
-              <div class="col-5">
+              <div class="col-12 col-md-5">
                 <q-input
                   dense
                   standout
@@ -31,69 +31,93 @@
                   v-model="newGameName.basePrice"
                 />
               </div>
-              <div class="col-2 q-pb-xs q-mb-md">
-                <q-btn color="primary" type="submit" icon="add">
+              <div class="col-12 col-md-2 q-pb-xs q-mb-md">
+                <q-btn
+                  color="primary"
+                  type="submit"
+                  icon="add"
+                  class="full-width"
+                >
                   اضافه کردن
                 </q-btn>
               </div>
             </div>
+            <q-separator class="full-width q-mt-sm" />
           </q-form>
           <section class="game-container">
             <div
               v-for="item in gameNames"
               :key="item.id"
-              style="max-width: 20rem; padding-top: 1rem"
+              style="max-width: 45rem; padding-top: 1rem"
             >
               <div style="display: flex; width: 100%; align-items: center">
                 <span style="flex: 1">{{ item.name }}</span>
+
+                <q-btn
+                  color="primary"
+                  @click="addNewTimeForGame(item)"
+                  icon="add"
+                >
+                  شروع وقت جدید
+                </q-btn>
                 <q-btn
                   icon="delete"
                   flat
                   @click="removeGameFromGameName(item)"
                 />
-                <q-btn
-                  color="primary"
-                  @click="addNewTimeForGame(item)"
-                  icon="add"
-                  style="margin-right: auto !important"
-                >
-                  شروع وقت جدید
-                </q-btn>
               </div>
-              <div class="container q-mt-sm">
-                <div
-                  class="col q-ml-xs flex items-center"
+              <div
+                class="container q-mt-sm"
+                style="display: flex; flex-direction: column; gap: 0.5rem"
+              >
+                <q-card
+                  class="col q-ml-xs flex items-center rounded-borders q-py-sm q-px-sm shadow-0"
                   v-for="child in item.children"
                   :key="child.id"
                 >
-                  <div>
-                    هزینه تا الان
-                    <span class="text-secondary text-bold">{{
-                      child.currentPrice
-                    }}</span>
-                    تومان
+                  <div class="row q-col-gutter-lg">
+                    <span>
+                      <!-- Only the Time matters -->
+                      زمان استارت تایم :{{
+                        new Date(child.startTime)
+                          .toLocaleDateString('fa-Fa', {
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            second: 'numeric'
+                          })
+                          .split(',')[1]
+                      }}
+                    </span>
+                    <div>
+                      هزینه تا الان
+                      <span class="text-secondary text-bold">{{
+                        child.currentPrice
+                      }}</span>
+                      تومان
+                    </div>
                   </div>
-                  <q-btn
-                    flat
-                    icon="play_arrow"
-                    v-if="child.isPaused"
-                    @click="calculateNewTimeAgain(child)"
-                  >
-                  </q-btn>
-                  <q-btn
-                    flat
-                    v-else
-                    icon="stop"
-                    @click="calculateTimeBetweenStartAndEnd(child, item)"
-                  >
-                    توقف
-                  </q-btn>
-                  <q-btn
-                    icon="delete"
-                    flat
-                    @click="removeChildFromGame(child, item)"
-                  />
-                </div>
+                  <div style="margin-right: auto">
+                    <q-btn
+                      flat
+                      icon="play_arrow"
+                      v-if="child.isPaused"
+                      @click="calculateNewTimeAgain(child)"
+                    >
+                    </q-btn>
+                    <q-btn
+                      flat
+                      v-else
+                      icon="stop"
+                      @click="calculateTimeBetweenStartAndEnd(child, item)"
+                    >
+                    </q-btn>
+                    <q-btn
+                      icon="delete"
+                      flat
+                      @click="removeChildFromGame(child, item)"
+                    />
+                  </div>
+                </q-card>
               </div>
             </div>
           </section>
@@ -104,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { QForm, useQuasar } from 'quasar';
+import { QForm, getCssVar, useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 interface Item {
